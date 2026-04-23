@@ -27,17 +27,21 @@ class DeviceService {
       return [];
     }
 
-    const idsList = devices.map((r) => r.id);
-    const images = await DeviceRepository.getImages(idsList);
+    return devices;
+  }
 
-    const result = devices.map((device) => {
-      return {
-        ...device,
-        imagens: images.filter((img) => img.id_dispositivo === device.id),
-      };
-    });
+  async getFilterAvaibleDevices(payload) {
+    console.log({ payload });
 
-    return result;
+    const devices = await DeviceRepository.getFilterAvaibleDevices(payload);
+
+    console.log({ devices });
+
+    if (!devices || devices.length === 0) {
+      return [];
+    }
+
+    return devices;
   }
 
   async getUserDevices(userId) {

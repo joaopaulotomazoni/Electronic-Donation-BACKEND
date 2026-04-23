@@ -3,7 +3,7 @@ const deviceService = require('../services/device.service');
 class DeviceController {
   async register(request, response) {
     const { userId } = request.params;
-    const { name, category, conservationState, description, images } =
+    const { name, category, conservationState, description, images, uf, city } =
       request.body;
 
     const payload = {
@@ -12,6 +12,8 @@ class DeviceController {
       category,
       conservationState,
       description,
+      uf,
+      city,
     };
 
     const result = await deviceService.register(payload, images);
@@ -23,6 +25,28 @@ class DeviceController {
     try {
       const { userId } = request.query;
       const result = await deviceService.getDevices(userId);
+
+      return response.status(200).json(result);
+    } catch (error) {
+      return response.status(500).json({ error: error.message });
+    }
+  }
+
+  async getFilterAvaibleDevices(request, response) {
+    try {
+      const { userId, search, categoria, estado_conservacao, uf, cidade } =
+        request.query;
+
+      const payload = {
+        userId,
+        search,
+        categoria,
+        estado_conservacao,
+        uf,
+        cidade,
+      };
+
+      const result = await deviceService.getFilterAvaibleDevices(payload);
 
       return response.status(200).json(result);
     } catch (error) {
