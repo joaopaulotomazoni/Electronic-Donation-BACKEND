@@ -1,6 +1,6 @@
-const userService = require("../services/user.service");
-const { z } = require("zod");
-const bcrypt = require("bcryptjs");
+const userService = require('../services/user.service');
+const { z } = require('zod');
+const bcrypt = require('bcryptjs');
 
 const BCRYPT_ROUNDS = 10;
 
@@ -14,13 +14,13 @@ class UserController {
       response.json({ userData, token });
     } catch (error) {
       if (
-        error.message === "Email inválido" ||
-        error.message === "Senha inválida"
+        error.message === 'Email inválido' ||
+        error.message === 'Senha inválida'
       ) {
         return response.status(401).json({ error: error.message });
       }
       console.error(error);
-      response.status(500).json({ error: "Erro interno do servidor" });
+      response.status(500).json({ error: 'Erro interno do servidor' });
     }
   }
 
@@ -29,25 +29,52 @@ class UserController {
       const registerSchema = z
         .object({
           name: z.string(),
-          cpf: z.string().min(11, "CPF inválido"),
-          email: z.string().email("Email inválido"),
-          password: z.string().min(6, "Senha deve ter no mínimo 6 caracteres"),
+          cpfOrCnpj: z.string().min(11, 'CPF ou CNPJ inválido'),
+          cep: z.string().min(8, 'CEP inválido'),
+          rua: z.string().min(1, 'Rua é obrigatória'),
+          numero: z.string().min(1, 'Número é obrigatório'),
+          complemento: z.string().optional(),
+          bairro: z.string().min(1, 'Bairro é obrigatório'),
+          cidade: z.string().min(1, 'Cidade é obrigatória'),
+          estado: z.string().min(2, 'Estado é obrigatório'),
+          email: z.string().email('Email inválido'),
+          password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
           confirmPassword: z
             .string()
-            .min(6, "Senha deve ter no mínimo 6 caracteres"),
+            .min(6, 'Senha deve ter no mínimo 6 caracteres'),
         })
         .refine((data) => data.password === data.confirmPassword, {
-          message: "As senhas não coincidem",
-          path: ["confirmPassword"],
+          message: 'As senhas não coincidem',
+          path: ['confirmPassword'],
         });
 
-      const { name, cpf, email, password } = registerSchema.parse(request.body);
+      const {
+        name,
+        cpfOrCnpj,
+        cep,
+        rua,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        estado,
+        email,
+        password,
+        confirmPassword,
+      } = registerSchema.parse(request.body);
 
       const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
       const payload = {
         nome: name,
-        cpf,
+        cpfOrCnpj,
+        cep,
+        rua,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        estado,
         email,
         password: hashedPassword,
       };
@@ -60,13 +87,13 @@ class UserController {
         return response.status(400).json({ error: error.errors });
       }
       if (
-        error.message === "Erro ao registrar usuário" ||
-        error.message === "O usuario ja possui cadastro"
+        error.message === 'Erro ao registrar usuário' ||
+        error.message === 'O usuario ja possui cadastro'
       ) {
         return response.status(400).json({ error: error.message });
       }
       console.error(error);
-      response.status(500).json({ error: "Erro interno do servidor" });
+      response.status(500).json({ error: 'Erro interno do servidor' });
     }
   }
 }

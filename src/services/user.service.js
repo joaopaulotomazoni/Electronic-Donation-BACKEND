@@ -1,47 +1,60 @@
-const supabase = require("../config/database");
-const userRepository = require("../repository/user.repository");
-const bcrypt = require("bcryptjs");
-const { generateToken } = require("../utils/generateToken");
+const supabase = require('../config/database');
+const userRepository = require('../repository/user.repository');
+const bcrypt = require('bcryptjs');
+const { generateToken } = require('../utils/generateToken');
 
 class UserService {
   async login(email, password) {
     const user = await userRepository.login(email);
 
     if (!user) {
-      throw new Error("Email inválido");
+      throw new Error('Email inválido');
     }
 
     const passwordMatch = await bcrypt.compare(password, user.senha);
 
     if (!passwordMatch) {
-      throw new Error("Senha inválida");
+      throw new Error('Senha inválida');
     }
 
     const token = generateToken(user);
 
     return {
-      userData: { id: user.id, nome: user.nome, cpf: user.cpf, email: user.email },
+      userData: {
+        id: user.id,
+        nome: user.nome,
+        cpf: user.cpf,
+        email: user.email,
+      },
       token,
     };
   }
 
   async register(payload) {
-    const isUserExist = await userRepository.verifyExistingUser(payload.email);
+    const isUserExist = await userRepository.verifyExistingUser(
+      payload.email,
+      payload.cpfOrCnpj
+    );
 
     if (isUserExist) {
-      throw new Error("O usuario ja possui cadastro");
+      throw new Error('O usuario ja possui cadastro');
     }
 
     const user = await userRepository.register(payload);
 
     if (!user) {
-      throw new Error("Erro ao registrar usuário");
+      throw new Error('Erro ao registrar usuário');
     }
 
     const token = generateToken(user);
 
     return {
-      userData: { id: user.id, nome: user.nome, cpf: user.cpf, email: user.email },
+      userData: {
+        id: user.id,
+        nome: user.nome,
+        cpf: user.cpf,
+        email: user.email,
+      },
       token,
     };
   }
