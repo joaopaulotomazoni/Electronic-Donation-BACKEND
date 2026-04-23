@@ -7,6 +7,8 @@ class DeviceRepository {
     category,
     conservationState,
     description,
+    uf,
+    city,
   }) {
     const { data, error } = await supabase
       .from('dispositivos')
@@ -17,6 +19,8 @@ class DeviceRepository {
           categoria: category,
           estado_conservacao: conservationState,
           descricao: description,
+          uf,
+          cidade: city,
         },
       ])
       .select('id')
@@ -33,11 +37,62 @@ class DeviceRepository {
   }
 
   async getDevices(userId) {
-    const { data, error } = userId
-      ? await supabase.rpc('listar_dispositivos_disponiveis', {
-          p_id_usuario: userId,
-        })
-      : await supabase.rpc('listar_dispositivos_disponiveis');
+    let query = supabase
+      .from('dispositivos')
+      .select('*, imagens(*)')
+      .neq('status', 'doado');
+
+    if (userId) {
+      query = query.neq('id_usuario', userId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
+  async getFilterAvaibleDevices({
+    userId,
+    search,
+    categoria,
+    estado_conservacao,
+    uf,
+    cidade,
+  }) {
+    let query = supabase
+      .from('dispositivos')
+      .select('*, imagens(*)')
+      .neq('status', 'doado');
+
+    if (userId) {
+      query = query.neq('id_usuario', userId);
+    }
+
+    if (search) {
+      query = query.ilike('nome_dispositivo', `%${search}%`);
+    }
+
+    if (categoria) {
+      query = query.eq('categoria', categoria);
+    }
+
+    if (estado_conservacao) {
+      query = query.eq('estado_conservacao', estado_conservacao);
+    }
+
+    if (uf) {
+      query = query.eq('uf', uf);
+    }
+
+    if (cidade) {
+      query = query.eq('cidade', cidade);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       throw new Error(error.message);
