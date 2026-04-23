@@ -3,7 +3,7 @@ const deviceService = require('../services/device.service');
 class DeviceController {
   async register(request, response) {
     const { userId } = request.params;
-    const { name, category, conservationState, description, images } =
+    const { name, category, conservationState, description, images, uf, city } =
       request.body;
 
     const payload = {
@@ -12,6 +12,9 @@ class DeviceController {
       category,
       conservationState,
       description,
+      images,
+      uf,
+      city,
     };
 
     const result = await deviceService.register(payload, images);

@@ -7,6 +7,8 @@ class DeviceRepository {
     category,
     conservationState,
     description,
+    uf,
+    city,
   }) {
     const { data, error } = await supabase
       .from('dispositivos')
@@ -17,6 +19,8 @@ class DeviceRepository {
           categoria: category,
           estado_conservacao: conservationState,
           descricao: description,
+          uf,
+          cidade: city,
         },
       ])
       .select('id')
