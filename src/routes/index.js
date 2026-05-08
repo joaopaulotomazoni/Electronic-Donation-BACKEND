@@ -6,6 +6,14 @@ const DeviceController = require('../controllers/device.controller');
 
 const router = express.Router();
 
+router.post('/users/:userId/avatar', UserController.changeAvatar);
+
+router.delete('/users/:userId/avatar', UserController.deleteAvatar);
+
+router.put('/users/:userId/update-profile', UserController.updateProfile);
+
+router.put('/users/:userId/change-password', UserController.changePassword);
+
 router.post('/login', UserController.login);
 
 router.post('/register', UserController.register);

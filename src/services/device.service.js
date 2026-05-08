@@ -31,11 +31,7 @@ class DeviceService {
   }
 
   async getFilterAvaibleDevices(payload) {
-    console.log({ payload });
-
     const devices = await DeviceRepository.getFilterAvaibleDevices(payload);
-
-    console.log({ devices });
 
     if (!devices || devices.length === 0) {
       return [];

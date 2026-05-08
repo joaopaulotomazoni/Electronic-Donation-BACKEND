@@ -1,3 +1,4 @@
+const { id } = require('zod/locales');
 const supabase = require('../config/database');
 
 class UserRepository {
@@ -136,6 +137,135 @@ class UserRepository {
       .update({ senha: password })
       .eq('email', email)
       .select()
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
+  async changeAvatar(userId, imageUrl) {
+    const { data: oldData, error: oldError } = await supabase
+      .from('usuarios')
+      .select('foto_perfil')
+      .eq('id', userId)
+      .single();
+
+    if (oldError) {
+      if (oldError.code === 'PGRST116') {
+        return null;
+      }
+      throw new Error(oldError.message);
+    }
+
+    const { data, error } = await supabase
+      .from('usuarios')
+      .update({ foto_perfil: imageUrl })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw new Error(error.message);
+    }
+
+    return {
+      novaFoto: data.foto_perfil,
+      antigaFoto: oldData.foto_perfil,
+    };
+  }
+
+  async deleteAvatar(userId) {
+    const { data: oldData, error: oldError } = await supabase
+      .from('usuarios')
+      .select('foto_perfil')
+      .eq('id', userId)
+      .single();
+
+    if (oldError) {
+      if (oldError.code === 'PGRST116') {
+        return null;
+      }
+      throw new Error(oldError.message);
+    }
+
+    const { data, error } = await supabase
+      .from('usuarios')
+      .update({ foto_perfil: null })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return {
+      antigaFoto: oldData.foto_perfil,
+    };
+  }
+
+  async getPassword(userId) {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('senha')
+      .eq('id', userId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw new Error(error.message);
+    }
+
+    return data.senha;
+  }
+
+  async updatePassword(userId, encryptedPassword) {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .update({ senha: encryptedPassword })
+      .eq('id', userId)
+      .select('id')
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return null;
+      }
+      throw new Error(error.message);
+    }
+
+    return data.id > 0;
+  }
+
+  async updateProfile(
+    { nome, cep, estado, cidade, bairro, rua, numero, complemento },
+    userId
+  ) {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .update({
+        nome: nome,
+        cep: cep,
+        estado: estado,
+        cidade: cidade,
+        bairro: bairro,
+        rua: rua,
+        numero: numero,
+        complemento: complemento,
+      })
+      .eq('id', userId)
+      .select('id')
       .single();
 
     if (error) {
