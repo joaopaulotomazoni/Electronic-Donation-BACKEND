@@ -10,7 +10,15 @@ router.post('/login', UserController.login);
 
 router.post('/register', UserController.register);
 
+router.post('/forgot-password/send-code', UserController.forgotPassword);
+
+router.post('/forgot-password/verify-code', UserController.verifyCode);
+
+router.post('/forgot-password/reset-password', UserController.resetPassword);
+
 router.get('/avaible-devices', DeviceController.getDevices);
+
+router.get('/filter-avaible-devices', DeviceController.getFilterAvaibleDevices);
 
 router.get('/:userId/devices', authMiddleware, DeviceController.getUserDevices);
 

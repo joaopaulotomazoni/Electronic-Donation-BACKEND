@@ -1,6 +1,7 @@
 const userService = require('../services/user.service');
 const { z } = require('zod');
 const bcrypt = require('bcryptjs');
+const userRepository = require('../repository/user.repository');
 
 const BCRYPT_ROUNDS = 10;
 
@@ -94,6 +95,73 @@ class UserController {
       }
       console.error(error);
       response.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async forgotPassword(request, response) {
+    try {
+      const { email } = request.body;
+
+      const userId = await userService.generateCode(email);
+
+      if (!userId) {
+        return response
+          .status(404)
+          .json({ error: 'Não foi possível enviar o e-mail.' });
+      }
+
+      const salvarCodigo = await userService.createVerificationCode(
+        userId,
+        email
+      );
+
+      return response
+        .status(200)
+        .json({ message: 'Código enviado com sucesso para o seu e-mail.' });
+    } catch {
+      response.status(500).json({ error: 'Erro ao enviar código' });
+    }
+  }
+
+  async verifyCode(request, response) {
+    try {
+      const { email, code } = request.body;
+
+      const userId = await userService.verifyCode(email, code);
+
+      if (!userId) {
+        return response
+          .status(404)
+          .json({ error: 'Não foi possível enviar o e-mail.' });
+      }
+
+      return response
+        .status(200)
+        .json({ message: 'Código enviado com sucesso para o seu e-mail.' });
+    } catch {
+      response.status(500).json({ error: 'Erro ao enviar código' });
+    }
+  }
+
+  async resetPassword(request, response) {
+    try {
+      const { email, code, senha } = request.body;
+
+      const { userData, token } = await userService.resetPassword(
+        email,
+        code,
+        senha
+      );
+
+      if (!userData || !token) {
+        return response
+          .status(400)
+          .json({ error: 'Código inválido ou expirado.' });
+      }
+
+      return response.status(200).json({ userData, token });
+    } catch {
+      response.status(500).json({ error: 'Erro ao redefinir a senha.' });
     }
   }
 }

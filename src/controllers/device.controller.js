@@ -32,6 +32,28 @@ class DeviceController {
     }
   }
 
+  async getFilterAvaibleDevices(request, response) {
+    try {
+      const { userId, search, categoria, estado_conservacao, uf, cidade } =
+        request.query;
+
+      const payload = {
+        userId,
+        search,
+        categoria,
+        estado_conservacao,
+        uf,
+        cidade,
+      };
+
+      const result = await deviceService.getFilterAvaibleDevices(payload);
+
+      return response.status(200).json(result);
+    } catch (error) {
+      return response.status(500).json({ error: error.message });
+    }
+  }
+
   async getUserDevices(request, response) {
     try {
       const { userId } = request.params;
