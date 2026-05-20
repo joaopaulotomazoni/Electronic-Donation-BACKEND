@@ -177,7 +177,54 @@ class DeviceRepository {
     if (error) throw new Error(error.message);
   }
 
-  async updateStatus(idSolicitacao, status) {
+  async getDeviceInfoForEmailRequest(deviceId) {
+    console.log('Buscando informações do dispositivo para email:', deviceId);
+    const { data, error } = await supabase
+      .from('dispositivos')
+      .select('nome_dispositivo, usuarios(nome, email)')
+      .eq('id', deviceId)
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    if (!data.usuarios) {
+      throw new Error('Dono do dispositivo não encontrado.');
+    }
+
+    return {
+      nome_dispositivo: data.nome_dispositivo,
+      nome_usuario: data.usuarios.nome,
+      email: data.usuarios.email,
+    };
+  }
+
+  async getDeviceInfoForEmailUpdate(requestId) {
+    const { data, error } = await supabase
+      .from('solicitacoes')
+      .select(`
+        dispositivos ( nome_dispositivo ),
+        usuarios ( nome, email ) // Traz o email do SOLICITANTE
+      `)
+      .eq('id', requestId)
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+    if (!data.usuarios) {
+      throw new Error('Dono do dispositivo não encontrado.');
+    }
+    return {
+      nome_dispositivo: data.dispositivos.nome_dispositivo,
+      nome_usuario: data.usuarios.nome,
+      email: data.usuarios.email,
+    };
+  }
+
+
+  async updateStatus(requestId, status) {
     const { data, error } = await supabase
       .from('solicitacoes')
       .update({ status })

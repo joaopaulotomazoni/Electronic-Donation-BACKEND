@@ -1,4 +1,5 @@
 const DeviceRepository = require('../repository/device.repository');
+const nodemailer = require('nodemailer');
 const {
   uploadBase64Images,
   deleteImages,
@@ -82,10 +83,56 @@ class DeviceService {
 
   async postDeviceRequest(payload) {
     await DeviceRepository.postDeviceRequest(payload);
+
+    const { nome_dispositivo, nome_usuario, email } =
+      await DeviceRepository.getDeviceInfoForEmailRequest(payload.idDispositivo);
+
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Electronic Donation" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Solicitação de Doação',
+      html: `
+        <h2>Nova solicitação de doação</h2>
+        <p>Olá ${nome_usuario},</p>
+        <p>Você recebeu uma nova solicitação de doação para o dispositivo ${nome_dispositivo}.</p>
+        <p><strong>Justificativa do solicitante:</strong></p>
+        <p>${payload.justificativa}</p>
+        <p>Por favor, acesse sua conta para aceitar ou recusar a solicitação.</p>
+      `,
+    });
   }
 
-  async updateStatus(idSolicitacao, status) {
-    await DeviceRepository.updateStatus(idSolicitacao, status);
+  async updateStatus(requestId, status) {
+    await DeviceRepository.updateStatus(requestId, status);
+
+    const result = await DeviceRepository.getDeviceInfoForEmailUpdate(requestId);
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
+
+      await transporter.sendMail({
+        from: `"Electronic Donation" <${process.env.EMAIL_USER}>`,
+        to: result.email,
+        subject: 'Solicitação de Doação',
+        html: `
+          <h2>Atualização da solicitação de doação</h2>
+          <p>Olá ${result.nome_usuario},</p>
+          <p>A solicitação de doação para o dispositivo ${result.nome_dispositivo} foi atualizada para o status: <strong>${status}</strong>.</p>
+          <p>Por favor, acesse sua conta para mais detalhes.</p>
+        `,
+      });
   }
 
   async userDeviceWithRequest(userId) {
