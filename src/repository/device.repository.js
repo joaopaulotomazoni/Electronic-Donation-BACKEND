@@ -104,7 +104,7 @@ class DeviceRepository {
   async getUserDevices(userId) {
     const { data, error } = await supabase
       .from('dispositivos')
-      .select('*, usuarios(nome), solicitacoes(status)')
+      .select('*, usuarios(nome), solicitacoes(id, status)')
       .eq('id_usuario', userId);
 
     if (error) {
@@ -177,13 +177,25 @@ class DeviceRepository {
     if (error) throw new Error(error.message);
   }
 
-  async updateStatus(deviceId, status) {
+  async updateStatus(idSolicitacao, status) {
     const { data, error } = await supabase
       .from('solicitacoes')
       .update({ status })
-      .eq('id_dispositivo', deviceId);
+      .eq('id', idSolicitacao)
+      .select('id_dispositivo')
+      .single();
 
     if (error) throw new Error(error.message);
+
+    if (status === 'aceito' && data) {
+      const { error: rejectError } = await supabase
+        .from('solicitacoes')
+        .update({ status: 'rejeitado' })
+        .eq('id_dispositivo', data.id_dispositivo)
+        .neq('id', idSolicitacao);
+
+      if (rejectError) throw new Error(rejectError.message);
+    }
   }
 
   async userDeviceWithRequest(userId) {

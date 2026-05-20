@@ -3,8 +3,18 @@ const { authMiddleware } = require('../middlewares/authMiddleware');
 
 const UserController = require('../controllers/user.controller');
 const DeviceController = require('../controllers/device.controller');
+const MessagesController = require('../controllers/messages.controller');
+const { auth } = require('../config/database');
 
 const router = express.Router();
+
+router.post('/users/:userId/avatar', UserController.changeAvatar);
+
+router.delete('/users/:userId/avatar', UserController.deleteAvatar);
+
+router.put('/users/:userId/update-profile', UserController.updateProfile);
+
+router.put('/users/:userId/change-password', UserController.changePassword);
 
 router.post('/login', UserController.login);
 
@@ -53,7 +63,7 @@ router.get(
 );
 
 router.put(
-  '/:deviceId/updateStatus',
+  '/:idSolicitacao/updateStatus',
   authMiddleware,
   DeviceController.updateStatus
 );
@@ -62,6 +72,12 @@ router.post(
   '/:idSolicitante/:idDispositivo/device-request',
   authMiddleware,
   DeviceController.postDeviceRequest
+);
+
+router.get(
+  '/chat/:idSolicitacao/messages',
+  authMiddleware,
+  MessagesController.getMessagesBySolicitacao
 );
 
 //router.get("/minha-rota", authMiddleware, dashboardController)

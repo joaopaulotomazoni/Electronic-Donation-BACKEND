@@ -25,6 +25,34 @@ class UserController {
     }
   }
 
+  async changeAvatar(request, response) {
+    try {
+      const { userId } = request.params;
+
+      const { base64Image } = request.body;
+
+      const { novaFoto } = await userService.changeAvatar(userId, base64Image);
+
+      response.json({ novaFoto });
+    } catch (error) {
+      console.error(error);
+      response.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
+  async deleteAvatar(request, response) {
+    try {
+      const { userId } = request.params;
+
+      const { antigaFoto } = await userService.deleteAvatar(userId);
+
+      response.json({ antigaFoto });
+    } catch (error) {
+      console.error(error);
+      response.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+
   async register(request, response) {
     try {
       const registerSchema = z
@@ -162,6 +190,56 @@ class UserController {
       return response.status(200).json({ userData, token });
     } catch {
       response.status(500).json({ error: 'Erro ao redefinir a senha.' });
+    }
+  }
+
+  async changePassword(request, response) {
+    try {
+      const { userId } = request.params;
+      const { currentPassword, newPassword, confirmNewPassword } = request.body;
+
+      const result = await userService.changePassword({
+        userId,
+        currentPassword,
+        newPassword,
+        confirmNewPassword,
+      });
+
+      return response.status(200).json({ passwordChanged: result });
+    } catch {
+      response.status(500).json({ error: 'Erro ao redefinir a senha.' });
+    }
+  }
+
+  async updateProfile(request, response) {
+    try {
+      const { userId } = request.params;
+
+      console.log(request.body);
+
+      const updateProfileSchema = z.object({
+        nome: z.string().min(1, 'Nome é obrigatório'),
+        cep: z.string().min(8, 'CEP inválido'),
+        estado: z.string().min(2, 'Estado é obrigatório'),
+        cidade: z.string().min(1, 'Cidade é obrigatória'),
+        bairro: z.string().min(1, 'Bairro é obrigatório'),
+        rua: z.string().min(1, 'Rua é obrigatória'),
+        numero: z.coerce.string().min(1, 'Número é obrigatório'),
+        complemento: z.string().optional(),
+      });
+
+      const payload = updateProfileSchema.parse(request.body);
+
+      await userService.updateProfile(payload, userId);
+
+      return response
+        .status(200)
+        .json({ message: 'Perfil atualizado com sucesso.' });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return response.status(400).json({ error: error.errors });
+      }
+      response.status(500).json({ error: 'Erro ao atualizar o perfil.' });
     }
   }
 }

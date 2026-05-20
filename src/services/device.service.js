@@ -31,11 +31,7 @@ class DeviceService {
   }
 
   async getFilterAvaibleDevices(payload) {
-    console.log({ payload });
-
     const devices = await DeviceRepository.getFilterAvaibleDevices(payload);
-
-    console.log({ devices });
 
     if (!devices || devices.length === 0) {
       return [];
@@ -88,8 +84,8 @@ class DeviceService {
     await DeviceRepository.postDeviceRequest(payload);
   }
 
-  async updateStatus(deviceId, status) {
-    await DeviceRepository.updateStatus(deviceId, status);
+  async updateStatus(idSolicitacao, status) {
+    await DeviceRepository.updateStatus(idSolicitacao, status);
   }
 
   async userDeviceWithRequest(userId) {

@@ -98,10 +98,10 @@ class DeviceController {
 
   async updateStatus(request, response) {
     try {
-      const { deviceId } = request.params;
+      const { idSolicitacao } = request.params;
       const { status } = request.body;
 
-      const result = await deviceService.updateStatus(deviceId, status);
+      const result = await deviceService.updateStatus(idSolicitacao, status);
 
       return response.status(200).json(result);
     } catch (error) {

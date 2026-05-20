@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const { generateToken } = require('../utils/generateToken');
 const { customAlphabet } = require('nanoid');
 const nodemailer = require('nodemailer');
+const { uploadBase64Images, deleteImages } = require('./upload.service');
 
 class UserService {
   async login(email, password) {
@@ -25,11 +26,36 @@ class UserService {
       userData: {
         id: user.id,
         nome: user.nome,
-        cpf: user.cpf,
+        cpf: user.cpfOrCnpj,
         email: user.email,
+        avatar: user.foto_perfil,
+        cep: user.cep,
+        uf: user.estado,
+        cidade: user.cidade,
+        bairro: user.bairro,
+        rua: user.rua,
+        numero: user.numero,
+        complemento: user.complemento,
       },
       token,
     };
+  }
+
+  async changeAvatar(userId, base64Image) {
+    const imageUrls = await uploadBase64Images([base64Image]);
+    const imageUrl = imageUrls[0];
+
+    const images = await userRepository.changeAvatar(userId, imageUrl);
+
+    await deleteImages([images.antigaFoto]);
+    return images;
+  }
+
+  async deleteAvatar(userId) {
+    const images = await userRepository.deleteAvatar(userId);
+
+    await deleteImages([images.antigaFoto]);
+    return images;
   }
 
   async register(payload) {
@@ -54,8 +80,16 @@ class UserService {
       userData: {
         id: user.id,
         nome: user.nome,
-        cpf: user.cpf,
+        cpf: user.cpfOrCnpj,
         email: user.email,
+        avatar: user.foto_perfil,
+        cep: user.cep,
+        uf: user.estado,
+        cidade: user.cidade,
+        bairro: user.bairro,
+        rua: user.rua,
+        numero: user.numero,
+        complemento: user.complemento,
       },
       token,
     };
@@ -138,9 +172,52 @@ class UserService {
         nome: user.nome,
         cpf: user.cpfOrCnpj,
         email: user.email,
+        avatar: user.foto_perfil,
+        cep: user.cep,
+        uf: user.estado,
+        cidade: user.cidade,
+        bairro: user.bairro,
+        rua: user.rua,
+        numero: user.numero,
+        complemento: user.complemento,
       },
       token,
     };
+  }
+
+  async changePassword({
+    userId,
+    currentPassword,
+    newPassword,
+    confirmNewPassword,
+  }) {
+    if (newPassword !== confirmNewPassword) {
+      throw new Error('As novas senhas não coincidem.');
+    }
+
+    const apiCurrentPassword = await userRepository.getPassword(userId);
+
+    const isCurrentPasswordCorrect = await bcrypt.compare(
+      currentPassword,
+      apiCurrentPassword
+    );
+
+    if (!isCurrentPasswordCorrect) {
+      throw new Error('A senha atual está incorreta.');
+    }
+
+    const encryptedPassword = await bcrypt.hash(newPassword, 10);
+
+    const result = await userRepository.updatePassword(
+      userId,
+      encryptedPassword
+    );
+
+    return result;
+  }
+
+  async updateProfile(payload, userId) {
+    await userRepository.updateProfile(payload, userId);
   }
 }
 
