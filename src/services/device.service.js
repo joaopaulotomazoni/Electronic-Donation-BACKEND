@@ -110,10 +110,10 @@ class DeviceService {
     });
   }
 
-  async updateStatus(requestId, status) {
-    await DeviceRepository.updateStatus(requestId, status);
+  async updateStatus(idSolicitacao, status) {
+    await DeviceRepository.updateStatus(idSolicitacao, status);
 
-    const result = await DeviceRepository.getDeviceInfoForEmailUpdate(requestId);
+    const result = await DeviceRepository.getDeviceInfoForEmailUpdate(idSolicitacao);
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -121,6 +121,7 @@ class DeviceService {
           pass: process.env.EMAIL_PASS,
         },
       });
+      console.log('status:', status);
 
       await transporter.sendMail({
         from: `"Electronic Donation" <${process.env.EMAIL_USER}>`,
@@ -134,7 +135,7 @@ class DeviceService {
         `,
       });
   }
-
+  
   async userDeviceWithRequest(userId) {
     const data = await DeviceRepository.userDeviceWithRequest(userId);
     return (

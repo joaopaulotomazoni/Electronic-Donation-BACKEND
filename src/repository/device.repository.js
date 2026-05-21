@@ -178,7 +178,6 @@ class DeviceRepository {
   }
 
   async getDeviceInfoForEmailRequest(deviceId) {
-    console.log('Buscando informações do dispositivo para email:', deviceId);
     const { data, error } = await supabase
       .from('dispositivos')
       .select('nome_dispositivo, usuarios(nome, email)')
@@ -200,14 +199,15 @@ class DeviceRepository {
     };
   }
 
-  async getDeviceInfoForEmailUpdate(requestId) {
+
+  async getDeviceInfoForEmailUpdate(idSolicitacao) {
     const { data, error } = await supabase
       .from('solicitacoes')
       .select(`
         dispositivos ( nome_dispositivo ),
         usuarios ( nome, email ) // Traz o email do SOLICITANTE
       `)
-      .eq('id', requestId)
+      .eq('id', idSolicitacao)
       .single();
 
     if (error) {
@@ -224,7 +224,7 @@ class DeviceRepository {
   }
 
 
-  async updateStatus(requestId, status) {
+  async updateStatus(idSolicitacao, status) {
     const { data, error } = await supabase
       .from('solicitacoes')
       .update({ status })
