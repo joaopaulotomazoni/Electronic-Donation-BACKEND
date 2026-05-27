@@ -20,6 +20,9 @@ class UserController {
       ) {
         return response.status(401).json({ error: error.message });
       }
+      if (error.message === 'Credenciais inválidas') {
+        return response.status(401).json({ error: error.message });
+      }
       console.error(error);
       response.status(500).json({ error: 'Erro interno do servidor' });
     }
@@ -214,8 +217,6 @@ class UserController {
   async updateProfile(request, response) {
     try {
       const { userId } = request.params;
-
-      console.log(request.body);
 
       const updateProfileSchema = z.object({
         nome: z.string().min(1, 'Nome é obrigatório'),

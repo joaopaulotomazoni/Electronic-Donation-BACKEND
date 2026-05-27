@@ -36,6 +36,7 @@ class UserService {
         rua: user.rua,
         numero: user.numero,
         complemento: user.complemento,
+        isAdmin: user.admin,
       },
       token,
     };
@@ -90,6 +91,7 @@ class UserService {
         rua: user.rua,
         numero: user.numero,
         complemento: user.complemento,
+        isAdmin: user.admin,
       },
       token,
     };
@@ -180,6 +182,7 @@ class UserService {
         rua: user.rua,
         numero: user.numero,
         complemento: user.complemento,
+        isAdmin: user.admin,
       },
       token,
     };

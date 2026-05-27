@@ -51,7 +51,6 @@ class DeviceService {
     return devices;
   }
 
-
   async getUserDevices(userId) {
     const devices = await DeviceRepository.getUserDevices(userId);
 
@@ -96,7 +95,9 @@ class DeviceService {
     await DeviceRepository.postDeviceRequest(payload);
 
     const { nome_dispositivo, nome_usuario, email } =
-      await DeviceRepository.getDeviceInfoForEmailRequest(payload.idDispositivo);
+      await DeviceRepository.getDeviceInfoForEmailRequest(
+        payload.idDispositivo
+      );
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -124,29 +125,29 @@ class DeviceService {
   async updateStatus(idSolicitacao, status) {
     await DeviceRepository.updateStatus(idSolicitacao, status);
 
-    const result = await DeviceRepository.getDeviceInfoForEmailUpdate(idSolicitacao);
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS,
-        },
-      });
-      console.log('status:', status);
+    const result =
+      await DeviceRepository.getDeviceInfoForEmailUpdate(idSolicitacao);
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
 
-      await transporter.sendMail({
-        from: `"Electronic Donation" <${process.env.EMAIL_USER}>`,
-        to: result.email,
-        subject: 'Solicitação de Doação',
-        html: `
+    await transporter.sendMail({
+      from: `"Electronic Donation" <${process.env.EMAIL_USER}>`,
+      to: result.email,
+      subject: 'Solicitação de Doação',
+      html: `
           <h2>Atualização da solicitação de doação</h2>
           <p>Olá ${result.nome_usuario},</p>
           <p>A solicitação de doação para o dispositivo ${result.nome_dispositivo} foi atualizada para o status: <strong>${status}</strong>.</p>
           <p>Por favor, acesse sua conta para mais detalhes.</p>
         `,
-      });
+    });
   }
-  
+
   async userDeviceWithRequest(userId) {
     const data = await DeviceRepository.userDeviceWithRequest(userId);
     return (
