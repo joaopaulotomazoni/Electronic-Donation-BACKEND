@@ -65,6 +65,16 @@ class DeviceController {
       return response.status(500).json({ error: error.message });
     }
   }
+  async getAllDevices(request, response) {
+    try {
+      const result = await deviceService.getAllDevices();
+
+      return response.status(200).json(result);
+    } catch (error) {
+      return response.status(500).json({ error: error.message });
+    }
+  }
+
 
   async getUserRequests(request, response) {
     try {

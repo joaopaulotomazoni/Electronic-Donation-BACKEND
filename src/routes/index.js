@@ -36,6 +36,9 @@ router.get('/filter-avaible-devices', DeviceController.getFilterAvaibleDevices);
 
 router.get('/:userId/devices', authMiddleware, DeviceController.getUserDevices);
 
+router.get('/devices', authMiddleware, DeviceController.getAllDevices);
+
+
 router.post(
   '/:userId/device/register',
   authMiddleware,

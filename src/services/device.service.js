@@ -41,6 +41,17 @@ class DeviceService {
     return devices;
   }
 
+  async getAllDevices() {
+    const devices = await DeviceRepository.getAllDevices();
+
+    if (!devices || devices.length === 0) {
+      return [];
+    }
+
+    return devices;
+  }
+
+
   async getUserDevices(userId) {
     const devices = await DeviceRepository.getUserDevices(userId);
 

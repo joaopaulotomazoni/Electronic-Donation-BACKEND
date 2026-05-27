@@ -55,6 +55,18 @@ class DeviceRepository {
     return data;
   }
 
+async getAllDevices() {
+    const { data, error } = await supabase
+      .from('dispositivos')
+      .select('*, imagens(*)');
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
   async getFilterAvaibleDevices({
     userId,
     search,
