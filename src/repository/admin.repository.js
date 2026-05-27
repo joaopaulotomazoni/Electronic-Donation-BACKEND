@@ -131,6 +131,23 @@ class AdminRepository {
         if (err1 || err2) throw (err1 || err2);
         return total > 0 ? (sucess / total) * 100 : 0;
     }
+
+     async adminAuth(idUsuario) {
+        const { data, error } = await supabase
+            .from('usuarios')
+            .select('id, nome, email, admin')
+            .eq('id', idUsuario)
+            .eq('admin', true)
+            .maybeSingle(); // Use maybeSingle para retornar null em vez de erro se não encontrar
+
+        if (error) {
+            // Log do erro para depuração, mas não exponha detalhes ao cliente
+            console.error("Erro ao verificar permissão de admin no repositório:", error);
+            throw new Error("Ocorreu um erro ao verificar as permissões de administrador.");
+        }
+        // Retorna true se um usuário admin foi encontrado, false caso contrário.
+        return !!data;
+    }
 }
 
 module.exports = new AdminRepository();

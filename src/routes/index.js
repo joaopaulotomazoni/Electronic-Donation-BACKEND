@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { authMiddleware } = require('../middlewares/authMiddleware');
+const adminAuthMiddleware = require('../middlewares/adminAuthMiddleware');
 
 const UserController = require('../controllers/user.controller');
 const DeviceController = require('../controllers/device.controller');
@@ -85,6 +86,7 @@ router.get(
 
 router.get(
   '/admin/dashboard',
+  adminAuthMiddleware,
   AdminController.getDashboardData
 );
 

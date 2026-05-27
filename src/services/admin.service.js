@@ -75,6 +75,14 @@ class AdminService {
             throw new Error(error.message);
         }
     }
+
+    static async adminAuth(idUsuario) {
+        console.log("Autenticando admin com ID:", idUsuario);
+        // A função do repositório agora retorna true se o usuário for admin, e false caso contrário.
+        const isAdmin = await adminRepository.adminAuth(idUsuario);
+        console.log("Resultado da autenticação no serviço:", isAdmin ? `Usuário ${idUsuario} é admin.` : `Usuário ${idUsuario} não é admin.`);
+        return isAdmin;
+    }
 }
 
 module.exports = AdminService;
