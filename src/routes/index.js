@@ -1,12 +1,15 @@
 const express = require('express');
+const cors = require('cors');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 
 const UserController = require('../controllers/user.controller');
 const DeviceController = require('../controllers/device.controller');
 const MessagesController = require('../controllers/messages.controller');
+const AdminController = require('../controllers/admin.controller');
 const { auth } = require('../config/database');
 
 const router = express.Router();
+
 
 router.post('/users/:userId/avatar', UserController.changeAvatar);
 
@@ -78,6 +81,11 @@ router.get(
   '/chat/:idSolicitacao/messages',
   authMiddleware,
   MessagesController.getMessagesBySolicitacao
+);
+
+router.get(
+  '/admin/dashboard',
+  AdminController.getDashboardData
 );
 
 //router.get("/minha-rota", authMiddleware, dashboardController)
